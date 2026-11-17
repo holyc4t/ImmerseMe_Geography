@@ -1,38 +1,62 @@
 <!--
-Text for the CurseForge project page. CurseForge accepts Markdown:
-paste everything below the line into the project description.
-Upload docs/images/icons.png (and a minimap screenshot) as project images
-and replace the image links with the CurseForge-hosted URLs.
+CurseForge project page for ImmerseMe: Geography. Paste everything below the line into the
+project's Description (Markdown).
 
-Summary field (max 125 characters):
-The lie of the land on your minimap: terrain, ground, water and wildness, and the riches your gatherer has found.
+  Summary (max 125 characters):
+    The land on your minimap: terrain, ground, water and wildness, plus the ores, herbs and fish you've found there.
+  Main category: Roleplay        License: MIT
+  Avatar: docs/images/avatar.png (512x512)
+  Gallery: docs/images/minimap.png, icons.png, together.png
+  Source: https://github.com/holyc4t/ImmerseMe_Geography
+  Issues: https://github.com/holyc4t/ImmerseMe_Geography/issues
+
+Once the Weather and Seasons projects exist, point their links below at their CurseForge pages.
 -->
 ---
 
 # ImmerseMe: Geography
 
-**Know the land you stand on.** A gold-ringed land orb on the minimap shows the terrain; hover it for the ground underfoot,
-the water and how wild the country is. Gatherers learn what each zone holds by working it.
+**The lie of the land on your minimap, for roleplayers.**
 
-![Icons](images/icons.png)
+A small orb on the upper-left of the minimap shows the land you're standing in: forest, hills,
+desert, swamp, snowy peaks, a city. Hover it for the ground underfoot, the water nearby and how wild
+the country is. If your character gathers, it also shows the ores, herbs, game and fish you have
+found there.
 
-## What you get
+![The land orb and its tooltip](https://raw.githubusercontent.com/holyc4t/ImmerseMe_Geography/main/docs/images/minimap.png)
 
-- **The land at a glance**: forest, hills, mountains, desert, swamp, jungle, tundra, coast, volcanic,
-  blighted, underground and more, with ground, water and wildness alongside.
-- **Riches you've earned**: ores, herbs, leather and fish appear only after you gather them in that
-  zone, and only for professions you have. Nothing extra on screen: hover the icons for *Scarce*, *Common* or *Plentiful*.
-- **Skill matters**: a novice's reading may be off and shows greyed; a veteran knows for sure.
-- **Your own record**: the tooltip shows how many you've gathered there and when.
-- **A veteran's hunch** when a zone still hides riches you haven't found.
-- Mirrors **ImmerseMe: Weather**'s sky orb across the minimap, clear of your buffs.
+## What it does
+
+- **The land at a glance**: one terrain picture, coloured like the zone. Westfall is golden
+  grassland, Redridge red hills, Duskwood a dark forest.
+- **Learned, not looked up.** A zone's resources stay hidden until *you* gather them there. Mine
+  copper in Westfall, and Westfall's copper appears.
+- **Skill makes you sure.** A novice's guess may be a little off; with practice it becomes exact.
+- **Your own record**: how much you've gathered in a zone, and when.
+- **Every classic zone**, plus the dungeons and mines where gathering happens.
+
+![Every land icon](https://raw.githubusercontent.com/holyc4t/ImmerseMe_Geography/main/docs/images/icons.png)
 
 ## Commands
 
-Type `/img help` in game. The most used:
+- `/img` - describe the land here in chat
+- `/img known` - everything you've learned about this zone
+- `/img show` / `/img hide` - show or hide the orb
+- `/img style row` - four small icons under the zone name instead of the orb (`/img style orb` goes back)
+- `/img help` - every other command
 
-- `/img` describes the land here
-- `/img known` lists what you've learned about this zone
-- `/img style orb | row` switches between the orb and a row of all four land icons
+`/geography` works too.
 
-Part of the **ImmerseMe** roleplay suite. MIT licensed, source on GitHub.
+## Good to know
+
+- **English only** for now: all of the addon's text is in English, and it is only tested with an
+  English game client.
+- After installing, restart the game once (a `/reload` doesn't load new textures).
+- Part of **ImmerseMe**, a family of small roleplay addons that each work on their own. Pairs well
+  with [ImmerseMe: Weather](https://github.com/holyc4t/ImmerseMe_Weather) (the sky) and
+  [ImmerseMe: Seasons](https://github.com/holyc4t/ImmerseMe_Seasons) (the year).
+
+Bugs, missing resources and ideas: [GitHub issues](https://github.com/holyc4t/ImmerseMe_Geography/issues).
+
+*World of Warcraft is a trademark of Blizzard Entertainment. This is a fan project, not affiliated
+with or endorsed by Blizzard.*
