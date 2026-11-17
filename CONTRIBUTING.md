@@ -54,6 +54,7 @@ UI.lua                    minimap orb, tooltip, slash commands
 Media/                    generated textures (TGA)
 tools/make_icons.py       generates every texture in Media/
 tools/preview_icons.py    renders docs/images/icons.png from Media/
+tools/make_avatar.py      renders the icon at 512 px: docs/images/avatar.png (CurseForge)
 tests/                    lua tests/run.lua: logic tests and a fake-client smoke test
 docs/                     documentation
 ```
