@@ -1,0 +1,16 @@
+## Interface: 16001
+## Title: ImmerseMe: Geography
+## Notes: The lie of the land on your minimap: a land orb for the terrain. Hover for ground, water, wildness and the ores, herbs, game and fish your gatherer has learned the zone holds.
+## Author: holyc4t
+## Version: @project-version@
+## IconTexture: Interface\AddOns\ImmerseMe_Geography\Media\icon
+## X-Category: Roleplay
+## X-Suite: ImmerseMe
+## X-License: MIT
+## SavedVariables: ImmerseMeGeographyDB
+## SavedVariablesPerCharacter: ImmerseMeGeographyCharDB
+
+Data.lua
+Core.lua
+Gather.lua
+UI.lua
