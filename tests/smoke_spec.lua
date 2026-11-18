@@ -39,6 +39,7 @@ local function fakeClient(state)
 				s.point, s.rel, s.relPoint, s.x, s.y = point, rel, relPoint, x, y
 			end end
 			if name == "GetRegions" or name == "GetChildren" then return function() end end
+			if name == "SetFrameLevel" then return function(s, l) s.level = l end end
 			if name == "SetSize" then return function(s, w, h) s.w, s.h = w, h end end
 			if name:match("^Get") then return function() return 140 end end
 			return function() end
@@ -121,6 +122,13 @@ local function fakeClient(state)
 		env.C_Map = { GetBestMapForUnit = function() return nil end, GetMapInfo = function(id) return state.maps[id] end }
 		env.WorldMapFrame = object("Frame")
 		env.WorldMapFrame.GetMapID = function() return state.mapID end
+		env.WorldMapFrame.ScrollContainer = object("Frame")
+		env.WorldMapFrame.ScrollContainer.GetFrameLevel = function() return 5 end
+		env.WorldMapFrame.OnMapChanged = function() end
+		env.hooksecurefunc = function(t, name, fn)
+			local orig = t[name]
+			t[name] = function(...) local r = orig(...); fn(...); return r end
+		end
 		env.WorldMapFrame.AddOverlayFrame = function(s, template, kind, ...)
 			local f = env.CreateFrame(kind, nil, s)
 			f:SetPoint(...)
@@ -454,9 +462,15 @@ test("smoke: the world map orb shows only explored zone maps", function()
 		spells = { [2575] = "Mining" }, loot = { 2770 } }
 	local env, ns = boot(state)
 	noErrors(env)
-	local orb = env.WorldMapFrame.overlays and env.WorldMapFrame.overlays[1]
-	ok(orb, "registered as a map overlay")
-	ok(type(orb.Refresh) == "function", "the map can refresh it")
+	ok(not rawget(env.WorldMapFrame, "overlays"), "not put in Blizzard's overlay list (taint)")
+	local orb
+	for _, f in ipairs(env.frames) do
+		if f.parent == env.WorldMapFrame.ScrollContainer then orb = f end
+	end
+	ok(orb, "sits on the map canvas")
+	ok(orb.level and orb.level >= 5 + 20, "drawn above the map's pins")
+	ok(orb.w == 20 and orb.ring.w == 50, "window fits the ring's opening, like the minimap button")
+	orb.Refresh = function() env.WorldMapFrame:OnMapChanged() end   -- a map change, as the map makes it
 	ok(not orb.shown, "nothing gathered yet: unexplored, no orb")
 
 	-- a gather while the map is open shows it at once

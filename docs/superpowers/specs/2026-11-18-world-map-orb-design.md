@@ -29,7 +29,10 @@ it is best for, in a way that looks like part of Blizzard's own map.
 
 ## Approaches
 
-- **A, chosen:** register via `WorldMapFrame:AddOverlayFrame(...)`, the map's own mechanism for
+- **Changed during review (2026-11-18): B on every client.** Registering through
+  `AddOverlayFrame` runs our insecure `Refresh` inside Blizzard's own map-change loop, which risks
+  taint ("Interface action failed because of an AddOn"). Hooks don't. The cost is a hand-tuned position.
+- **A, first chosen:** register via `WorldMapFrame:AddOverlayFrame(...)`, the map's own mechanism for
   corner controls (the map anchors it and calls `Refresh()` on every map change), anchored
   top-left below Blizzard's existing button.
 - **B, fallback when A's API is missing:** plain frame parented to the map's canvas container,

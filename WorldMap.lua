@@ -3,8 +3,11 @@
 -- shows nothing. Hover for the same reading as the minimap orb, headed by what the zone is best for.
 local ADDON, ns = ...
 
-local WINDOW, RING = 30, 54     -- the terrain window and the gold ring around it, in pixels
-local X, Y = 4, -44             -- from the map canvas' top-left: under Blizzard's own corner button
+-- The terrain window and the gold ring around it, in the proportions of Blizzard's minimap
+-- buttons: MiniMap-TrackingBorder's opening is about 20 px of its 50.
+local WINDOW, RING, RING_OFFSET = 20, 50, 5.5
+local X, Y = 8, -48             -- from the map canvas' top-left: under Blizzard's own corner button
+local LEVEL = 20                -- frame levels above the canvas, clear of its pins
 local CROP = 0.09
 
 local orb, reading, lastError
@@ -54,18 +57,15 @@ end
 -- has it (the map then places it and refreshes it on every map change), else pinned by hand.
 local function Create()
 	if orb or not WorldMapFrame then return end
-	local canvas = (WorldMapFrame.GetCanvasContainer and WorldMapFrame:GetCanvasContainer())
-		or WorldMapFrame.ScrollContainer or WorldMapFrame
-	if WorldMapFrame.AddOverlayFrame then
-		orb = WorldMapFrame:AddOverlayFrame(nil, "Button", "TOPLEFT", canvas, "TOPLEFT", X, Y)
-		orb.Refresh = ns.RefreshWorldMap     -- the map calls frame:Refresh() on every map change
-	else
-		orb = CreateFrame("Button", nil, canvas)
-		orb:SetPoint("TOPLEFT", canvas, "TOPLEFT", X, Y)
-		orb:SetFrameStrata("HIGH")
-		if hooksecurefunc and WorldMapFrame.OnMapChanged then
-			hooksecurefunc(WorldMapFrame, "OnMapChanged", ns.RefreshWorldMap)
-		end
+	-- A plain frame on the map canvas, refreshed from hooks. Not WorldMapFrame:AddOverlayFrame: that
+	-- would put insecure code into Blizzard's own map-change loop and risk tainting the map.
+	local canvas = WorldMapFrame.ScrollContainer
+		or (WorldMapFrame.GetCanvasContainer and WorldMapFrame:GetCanvasContainer()) or WorldMapFrame
+	orb = CreateFrame("Button", nil, canvas)
+	orb:SetPoint("TOPLEFT", canvas, "TOPLEFT", X, Y)
+	orb:SetFrameLevel((canvas:GetFrameLevel() or 0) + LEVEL)     -- above the map's pins and art
+	if hooksecurefunc and WorldMapFrame.OnMapChanged then
+		hooksecurefunc(WorldMapFrame, "OnMapChanged", ns.RefreshWorldMap)
 	end
 	orb:SetSize(WINDOW, WINDOW)
 
@@ -86,7 +86,7 @@ local function Create()
 	orb.ring = orb:CreateTexture(nil, "OVERLAY")
 	orb.ring:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
 	orb.ring:SetSize(RING, RING)
-	orb.ring:SetPoint("TOPLEFT", orb, "TOPLEFT", -5, 5)
+	orb.ring:SetPoint("TOPLEFT", orb, "TOPLEFT", -RING_OFFSET, RING_OFFSET)
 
 	orb:SetScript("OnEnter", ShowTooltip)
 	orb:SetScript("OnLeave", function() GameTooltip:Hide() end)
