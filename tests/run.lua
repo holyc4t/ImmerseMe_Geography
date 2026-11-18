@@ -45,7 +45,7 @@ function ok(cond, msg)
 	if not cond then error("not ok: " .. tostring(msg), 2) end
 end
 
-for _, spec in ipairs({ "tests/core_spec.lua", "tests/data_spec.lua", "tests/land_spec.lua", "tests/reading_spec.lua", "tests/smoke_spec.lua" }) do dofile(spec) end
+for _, spec in ipairs({ "tests/core_spec.lua", "tests/data_spec.lua", "tests/land_spec.lua", "tests/reading_spec.lua", "tests/smoke_spec.lua", "tests/worldmap_spec.lua" }) do dofile(spec) end
 
 local passed, failed = 0, 0
 for _, t in ipairs(tests) do
