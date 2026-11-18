@@ -6,7 +6,7 @@ local ADDON, ns = ...
 -- The terrain window and the gold ring around it, in the proportions of Blizzard's minimap
 -- buttons: MiniMap-TrackingBorder's opening is about 20 px of its 50.
 local WINDOW, RING, RING_OFFSET = 20, 50, 5.5
-local X, Y = 8, -48             -- from the map canvas' top-left: under Blizzard's own corner button
+local X, Y = 8, -36            -- from the map canvas' top-left: under Blizzard's own corner button
 local LEVEL = 20                -- frame levels above the canvas, clear of its pins
 local CROP = 0.09
 
