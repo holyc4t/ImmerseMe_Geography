@@ -116,6 +116,19 @@ local function fakeClient(state)
 	env.GetLootSlotLink = function(i) return "|Hitem:" .. state.loot[i] .. "::|h[x]|h" end
 	env.GetItemIcon = function() return 134579 end
 	env.IsAddOnLoaded = function() return false end
+	if state.maps then
+		-- the world map: state.mapID is the map it shows, state.maps its C_Map.GetMapInfo answers
+		env.C_Map = { GetBestMapForUnit = function() return nil end, GetMapInfo = function(id) return state.maps[id] end }
+		env.WorldMapFrame = object("Frame")
+		env.WorldMapFrame.GetMapID = function() return state.mapID end
+		env.WorldMapFrame.AddOverlayFrame = function(s, template, kind, ...)
+			local f = env.CreateFrame(kind, nil, s)
+			f:SetPoint(...)
+			s.overlays = rawget(s, "overlays") or {}
+			table.insert(s.overlays, f)
+			return f
+		end
+	end
 	env.frames = frames
 	return env
 end
@@ -136,7 +149,7 @@ end
 local function boot(state)
 	local env = fakeClient(state)
 	local space = {}
-	for _, file in ipairs({ "Data.lua", "Core.lua", "Gather.lua", "UI.lua" }) do
+	for _, file in ipairs({ "Data.lua", "Core.lua", "Gather.lua", "UI.lua", "WorldMap.lua" }) do
 		local chunk = loadIn(file, env)
 		chunk("ImmerseMe_Geography", space)
 	end
@@ -405,7 +418,7 @@ test("smoke: a building the client names instead of the zone is still part of th
 	env.C_Map = { GetBestMapForUnit = function() return state.map end, GetMapInfo = function(id) return maps[id] end }
 	env.IsIndoors = function() return state.indoors end
 	local ns = {}
-	for _, file in ipairs({ "Data.lua", "Core.lua", "Gather.lua", "UI.lua" }) do
+	for _, file in ipairs({ "Data.lua", "Core.lua", "Gather.lua", "UI.lua", "WorldMap.lua" }) do
 		loadIn(file, env)("ImmerseMe_Geography", ns)
 	end
 	fire(env, "ADDON_LOADED", "ImmerseMe_Geography")
@@ -430,5 +443,51 @@ test("smoke: a building the client names instead of the zone is still part of th
 	state.indoors = true
 	eq((ns.CurrentZone()), "Somewhere New", "and its buildings don't become Duskwood")
 	ok(ns.ZoneReport():find("not in the land data"), ns.ZoneReport())
+	noErrors(env)
+end)
+
+test("smoke: the world map orb shows only explored zone maps", function()
+	local state = { now = 100, zone = "Westfall", subzone = "", mapID = 1,
+		maps = { [1] = { name = "Westfall", mapType = 3 }, [2] = { name = "Eastern Kingdoms", mapType = 2 },
+		         [3] = { name = "Elwynn Forest", mapType = 3 } },
+		skills = { { "Professions", true, 0 }, { "Mining", false, 300 } },
+		spells = { [2575] = "Mining" }, loot = { 2770 } }
+	local env, ns = boot(state)
+	noErrors(env)
+	local orb = env.WorldMapFrame.overlays and env.WorldMapFrame.overlays[1]
+	ok(orb, "registered as a map overlay")
+	ok(type(orb.Refresh) == "function", "the map can refresh it")
+	ok(not orb.shown, "nothing gathered yet: unexplored, no orb")
+
+	-- a gather while the map is open shows it at once
+	fire(env, "UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 2575)
+	fire(env, "LOOT_OPENED")
+	ok(orb.shown, "explored now")
+	eq(orb.art.tex, ns.FacetIcon(ns.GetLand("Westfall", "", false), "terrain"), "the zone's terrain art")
+	orb.scripts.OnEnter(orb)
+	local all = table.concat(env.GameTooltip.lines, " / ")
+	ok(all:find("Westfall"), "zone header")
+	ok(all:find("Best for: Copper Ore"), all)
+	ok(all:find("Mining %(skill 300%)"), "same rows as the minimap")
+
+	-- the minimap tooltip has no verdict line
+	env.ImmerseMeGeographyReadout.scripts.OnEnter(env.ImmerseMeGeographyReadout)
+	ok(not table.concat(env.GameTooltip.lines, " / "):find("Best for"), "minimap unchanged")
+
+	state.mapID = 2; orb:Refresh()
+	ok(not orb.shown, "continent: no orb")
+	state.mapID = 3; orb:Refresh()
+	ok(not orb.shown, "zone with nothing gathered: no orb")
+	state.mapID = 99; orb:Refresh()
+	ok(not orb.shown, "map without info")
+	state.mapID = nil; orb:Refresh()
+	ok(not orb.shown, "no map id")
+
+	state.mapID = 1; orb:Refresh()
+	ok(orb.shown, "back on Westfall")
+	env.SlashCmdList.IMMERSEMEGEOGRAPHY("map")
+	ok(not orb.shown, "/img map hides it")
+	env.SlashCmdList.IMMERSEMEGEOGRAPHY("map")
+	ok(orb.shown, "and shows it again")
 	noErrors(env)
 end)

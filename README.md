@@ -19,6 +19,9 @@ found there.
   copper in Westfall, and Westfall's copper appears.
 - **Skill makes you sure.** A novice's guess may be a little off; with practice it becomes exact.
 - **Your own record**: how much you've gathered in a zone, and when.
+- **On the world map too.** Open the map on any zone you've gathered in and the same orb sits in
+  its top-left corner, with what that zone is best for. Plan your next farming trip from the map.
+  Zones you haven't gathered in stay blank.
 - **Every classic zone**, plus the dungeons and mines where gathering happens.
 
 ![Every land icon](docs/images/icons.png)
@@ -37,6 +40,7 @@ found there.
 | `/img` | Describe the land here in chat |
 | `/img known` | Everything you've learned about this zone |
 | `/img show` / `/img hide` | Show or hide the orb |
+| `/img map` | Show or hide the orb on the world map |
 | `/img style row` | Four small icons under the zone name instead of the orb (`/img style orb` goes back) |
 | `/img help` | Every other command |
 

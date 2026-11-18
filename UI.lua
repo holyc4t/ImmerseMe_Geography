@@ -12,6 +12,7 @@ local DEFAULTS = {
 	size    = 18,    -- icon size of the row style
 	xOffset = 0,     -- nudge right (+) or left (-) in pixels
 	yOffset = 0,     -- nudge up (+) or down (-) in pixels
+	map     = true,  -- the land orb on the world map
 }
 
 local GOLD = { 1, 0.82, 0 }
@@ -25,6 +26,7 @@ local TIER_COLOR = { { 0.80, 0.62, 0.42 }, { 1, 1, 1 }, { 1, 0.82, 0 } }
 local function PlayerSeed()
 	return (UnitName and UnitName("player") or "?") .. "-" .. (GetRealmName and GetRealmName() or "?")
 end
+ns.PlayerSeed = PlayerSeed
 
 local function GetReading()
 	local zone, subzone = ns.CurrentZone()
@@ -52,13 +54,17 @@ end
 -- Tooltip: the land, then what each of the player's gathering trades has learned here.
 -- Resources are shown nowhere else.
 ---------------------------------------------------------------------------
-local function AddLandLines(r, withZone)
+-- bestFor: optional list of resource names (the world map orb) for a "Best for" line under the header.
+local function AddLandLines(r, withZone, bestFor)
 	local land = r.land
 	if withZone then
 		GameTooltip:AddLine(land.zone, GOLD[1], GOLD[2], GOLD[3])
 		if land.subzone ~= "" and land.subzone ~= land.zone then
 			GameTooltip:AddLine(land.subzone, 0.8, 0.8, 0.8)
 		end
+	end
+	if bestFor and #bestFor > 0 then
+		GameTooltip:AddLine("Best for: " .. table.concat(bestFor, ", "), GOLD[1], GOLD[2], GOLD[3], true)
 	end
 	local icons = {}
 	for _, facet in ipairs(ns.FACET_ORDER) do
@@ -96,6 +102,8 @@ local function AddLandLines(r, withZone)
 		end
 	end
 end
+
+ns.AddLandLines = AddLandLines
 
 local function ShowTooltip(owner)
 	GameTooltip:SetOwner(owner, "ANCHOR_BOTTOMLEFT")
@@ -351,6 +359,7 @@ local function SafeRefresh()
 		lastError = err
 		Print("|cffff6060error:|r " .. tostring(err))
 	end
+	if ns.RefreshWorldMap then ns.RefreshWorldMap() end     -- WorldMap.lua guards itself
 end
 ns.OnDiscoveryChanged = SafeRefresh
 
@@ -423,6 +432,7 @@ local HELP = {
 	"/img size <12-24> - icon size of the row style",
 	"/img x <-60-60> - nudge it right (+) or left (-)",
 	"/img y <-60-60> - nudge it up (+) or down (-)",
+	"/img map - show or hide the land orb on the world map",
 	"/img known - what this character has learned about this zone",
 	"/img forget zone | all - forget this zone (or everything; 'forget all confirm')",
 	"/img debug - print gathering casts and loot, and which zone the addon thinks you are in",
@@ -485,6 +495,9 @@ SlashCmdList.IMMERSEMEGEOGRAPHY = function(input)
 		return
 	elseif cmd == "show" then db.show = true
 	elseif cmd == "hide" then db.show = false
+	elseif cmd == "map" then
+		db.map = not db.map
+		Print(db.map and "World map orb on." or "World map orb off.")
 	elseif cmd == "style" then
 		if arg ~= "orb" and arg ~= "row" then Print("Usage: /img style orb | row") return end
 		db.style = arg
