@@ -200,6 +200,31 @@ function ns.BuildReading(charDB, skills, zone, subzone, inInstance, playerSeed)
 end
 
 ---------------------------------------------------------------------------
+-- The world map: which map is a zone the land data knows, and what a zone is best for
+---------------------------------------------------------------------------
+ns.MAP_TYPE_ZONE = (Enum and Enum.UIMapType and Enum.UIMapType.Zone) or 3
+
+-- info: a C_Map.GetMapInfo result (or nil). Returns the zone name, or nil for continents, the
+-- world, dungeons and lands the data does not know.
+function ns.ZoneForMap(info)
+	if type(info) ~= "table" or info.mapType ~= ns.MAP_TYPE_ZONE then return nil end
+	if not (info.name and ns.Zones[info.name]) then return nil end
+	return info.name
+end
+
+-- The names of the first `limit` (default 3) resources of a reading the player can be sure of.
+-- reading.rows is already sorted richest first.
+function ns.BestFor(reading, limit)
+	limit = limit or 3
+	local out = {}
+	for _, row in ipairs(reading.rows or {}) do
+		if #out >= limit then break end
+		if not row.uncertain and not row.unconfirmed then out[#out + 1] = row.name end
+	end
+	return out
+end
+
+---------------------------------------------------------------------------
 -- Small parsing helpers for Gather.lua
 ---------------------------------------------------------------------------
 

@@ -14,3 +14,4 @@ Data.lua
 Core.lua
 Gather.lua
 UI.lua
+WorldMap.lua
